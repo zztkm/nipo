@@ -2,25 +2,28 @@
 
 日報
 
-
 ## Feature
 
 - 日報リポジトリの初期化
 	- config.jsonに独自のnipo書式を追加
-	- jsonはhttps://github.com/zztkm/dynamic-jsonでパースされる
 - [sink](https://veltiosoft.dev/sink/)を開く
-- Markdown書式をnipo書式に変換
+- 任意の文字列を置換
+	- Markdown -> nipo
+	- `## ` -> `●`
 
 ```json
 {
-	"## ": "●"
+    "header": {
+        "# ": "★",
+        "## ": "●"
+    }
 }
 ```
 
 ## Installation
 
 ```console
-go get github.landscape.co.jp/landbox/nipo/cmd/nipo
+go get github.com/zztkm/nipo
 ```
 
 ## Usage
@@ -29,10 +32,13 @@ go get github.landscape.co.jp/landbox/nipo/cmd/nipo
 
 ```console
 nipo init
+
+# create `nipo.json` file
 ```
 
-- converteした内容をファイルに書き込む
+- ヘッダーの変換を行う
+	- 変換の内容は`nipo.json`に従う
 
 ```console
-nipo converte 2021-04-08.md > 2021-04-08.nipo
+nipo converte 2021-04-08.md
 ```

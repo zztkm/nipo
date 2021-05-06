@@ -1,6 +1,6 @@
 
 build:
-	go build -o bin/nipo cmd/nipo/main.go 
+	go build -o bin/nipo main.go 
 
 windows_build:
-	GOOS=windows go build -o bin/nipo.exe cmd/nipo/main.go 
+	GOOS=windows go build -o bin/nipo.exe main.go 
