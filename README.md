@@ -23,7 +23,7 @@
 ## Installation
 
 ```console
-go get github.com/zztkm/nipo
+go install github.com/zztkm/nipo@latest
 ```
 
 ## Usage
