@@ -1,0 +1,23 @@
+project_name: nipo
+env:
+  - GO111MODULE=on
+before:
+  hooks:
+    - go mod tidy
+archives:
+  - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+    format_overrides:
+      - goos: windows
+        format: zip
+builds:
+  - main: .
+    goos:
+      - linux
+      - windows
+      - darwin
