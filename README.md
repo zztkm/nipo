@@ -5,7 +5,7 @@
 ## Feature
 
 - 日報リポジトリの初期化
-	- config.jsonに独自のnipo書式を追加
+	- nipo.jsonに独自のnipo書式を追加
 - [sink](https://veltiosoft.dev/sink/)を開く
 - 任意の文字列を置換
 	- Markdown -> nipo
