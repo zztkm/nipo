@@ -9,6 +9,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/Jeffail/gabs/v2"
 	"github.com/pkg/browser"
@@ -23,6 +24,8 @@ const (
 var configFile = "nipo.json"
 
 var printVersion = flag.Bool("version", false, "print version")
+
+const layout = "2006-01-02"
 
 // dir file 問わず存在確認に使える
 func fileExists(filename string) bool {
@@ -46,11 +49,15 @@ nipo <command> [arguments]
 		$ nipo init [mac or vm]
 	converte Markdown書式のファイルをNIPO書式に変換して標準出力します
 		$ nipo converte file.md
+	generate 実行時の日付でファイルを作成します。昨日のファイルが存在する場合は内容をコピーします。
+		$ nipo generate
+	sink Markdown書式のファイルをNIPO書式に変換して標準出力します
+		$ nipo sink タスクトラッカー sink をブラウザで開きます
 	`)
 	os.Exit(1)
 }
 
-func converte(filename string) error {
+func converte(filename string) {
 
 	b, err := ioutil.ReadFile(configFile)
 	if err != nil {
@@ -64,7 +71,7 @@ func converte(filename string) error {
 
 	file, err := os.Open(filename)
 	if err != nil {
-		return err
+		fatal("Failed to open file: %s\n", err)
 	}
 	defer file.Close()
 
@@ -76,7 +83,7 @@ func converte(filename string) error {
 			break
 		}
 		if err != nil {
-			return err
+			fatal("Failed to readLine: %s\n", err)
 		}
 
 		strLine := string(line)
@@ -93,18 +100,37 @@ func converte(filename string) error {
 			fmt.Println()
 		}
 	}
-	return nil
+}
+
+func copyFile(src, dst string) {
+	w, err := os.Create(dst)
+	if err != nil {
+		fatal("Failed to create file: %s\n", err)
+	}
+	defer w.Close()
+
+	if fileExists(src) {
+		r, err := os.Open(src)
+		if err != nil {
+			fatal("Failed to open file: %s\n", err)
+		}
+		defer r.Close()
+
+		_, err = io.Copy(w, r)
+		if err != nil {
+			fatal("Failed to copy: %s\n", err)
+		}
+	}
 }
 
 // init nipo.json が存在しない場合に作成. 既に存在する場合は処理しない.
 func nipoInit() {
 
 	if !fileExists(configFile) {
-		fp, err := os.Create(configFile)
+		f, err := os.Create(configFile)
 		if err != nil {
-			fatal("Failed to create nipo.json: %s\n", err)
 		}
-		defer fp.Close()
+		defer f.Close()
 	}
 }
 
@@ -129,6 +155,13 @@ func main() {
 	case "sink":
 		url := "https://veltiosoft.dev/sink/"
 		browser.OpenURL(url)
+	case "generate":
+		today := time.Now()
+		// today := time.Now().Format(layout)
+		yesterday := today.AddDate(0, 0, -1)
+		dst := today.Format(layout) + ".md"
+		src := yesterday.Format(layout) + ".md"
+		copyFile(src, dst)
 	default:
 		usage()
 	}
