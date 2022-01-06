@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"regexp"
 	"runtime"
 	"strings"
 	"time"
@@ -17,7 +18,7 @@ import (
 
 const (
 	name     = "nipo"
-	version  = "0.2.0"
+	version  = "0.3.0"
 	revision = "HEAD"
 )
 
@@ -49,10 +50,10 @@ nipo <command> [arguments]
 		$ nipo init [mac or vm]
 	converte Markdown書式のファイルをNIPO書式に変換して標準出力します
 		$ nipo converte file.md
-	generate 実行時の日付でファイルを作成します。昨日のファイルが存在する場合は内容をコピーします。
+	generate 最新のファイルの内容をコピーして、実行日の名前のファイルを作成します
 		$ nipo generate
-	sink Markdown書式のファイルをNIPO書式に変換して標準出力します
-		$ nipo sink タスクトラッカー sink をブラウザで開きます
+	sink タスクトラッカー sink をブラウザで開きます
+		$ nipo sink
 	`)
 	os.Exit(1)
 }
@@ -123,6 +124,23 @@ func copyFile(src, dst string) {
 	}
 }
 
+func getLatestFile() string {
+	files, err := os.ReadDir(".")
+	if err != nil {
+		fatal("Failed to read dir: %s\n", err)
+	}
+
+	var list []string
+	re := regexp.MustCompile(`\d{4}(-\d{2}){2}.md`)
+	for _, file := range files {
+		if re.MatchString(file.Name()) {
+			list = append(list, file.Name())
+		}
+	}
+	latestFile := list[len(list)-1]
+	return latestFile
+}
+
 // init nipo.json が存在しない場合に作成. 既に存在する場合は処理しない.
 func nipoInit() {
 
@@ -132,6 +150,13 @@ func nipoInit() {
 		}
 		defer f.Close()
 	}
+}
+
+func generate() {
+	today := time.Now()
+	dst := today.Format(layout) + ".md"
+	src := getLatestFile()
+	copyFile(src, dst)
 }
 
 func main() {
@@ -156,12 +181,7 @@ func main() {
 		url := "https://veltiosoft.dev/sink/"
 		browser.OpenURL(url)
 	case "generate":
-		today := time.Now()
-		// today := time.Now().Format(layout)
-		yesterday := today.AddDate(0, 0, -1)
-		dst := today.Format(layout) + ".md"
-		src := yesterday.Format(layout) + ".md"
-		copyFile(src, dst)
+		generate()
 	default:
 		usage()
 	}
