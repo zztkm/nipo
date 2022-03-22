@@ -1,0 +1,14 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  build:
+    desc: Build binary
+    cmds:
+      - go build -o bin/nipo main.go
+
+  windows-build:
+    desc: Build binary for windows
+    cmds:
+      - GOOS=windows go build -o bin/nipo.exe main.go
