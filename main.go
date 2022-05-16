@@ -18,7 +18,7 @@ import (
 
 const (
 	name     = "nipo"
-	version  = "0.3.0"
+	version  = "0.4.0"
 	revision = "HEAD"
 )
 
@@ -49,7 +49,9 @@ nipo <command> [arguments]
 	init 日報のテンプレートを出力します
 		$ nipo init [mac or vm]
 	converte Markdown書式のファイルをNIPO書式に変換して標準出力します
+	fileを指定しない場合は最新日付のファイルを変換して標準出力します
 		$ nipo converte file.md
+		$ nipo converte
 	generate 最新のファイルの内容をコピーして、実行日の名前のファイルを作成します
 		$ nipo generate
 	sink タスクトラッカー sink をブラウザで開きます
@@ -176,6 +178,9 @@ func main() {
 		nipoInit()
 	case "c", "converte":
 		filename := flag.Arg(1)
+		if filename == "" {
+			filename = getLatestFile()
+		}
 		converte(filename)
 	case "sink":
 		url := "https://veltiosoft.dev/sink/"
