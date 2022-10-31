@@ -158,6 +158,10 @@ func generate() {
 	today := time.Now()
 	dst := today.Format(layout) + ".md"
 	src := getLatestFile()
+	if src == dst {
+		fmt.Println("本日分のファイルが既に存在します")
+		return
+	}
 	copyFile(src, dst)
 }
 
